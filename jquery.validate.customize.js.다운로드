@@ -1,0 +1,46 @@
+﻿/* **
+ * input tag에 아래의 validation method를 넣으면 발동.
+ * ex) <input type="text" name="VisitorName" required data-rule-onlyKor />
+ * 
+ * */
+
+$(function () {
+
+  jQuery.validator.addMethod("onlyKor", function (value, element) {
+    var ex = /^[가-힣-'\s+]*$/;
+    return ex.test(value) ? true : false;
+  }, "한글만 입력 가능합니다.");
+
+  jQuery.validator.addMethod("onlyEng", function (value, element) {
+    var ex = /^[A-Za-z-'\s+]*$/;
+    return ex.test(value) ? true : false;
+  }, "영어만 입력 가능합니다.");
+  jQuery.validator.addMethod("onlyEng2", function (value, element) {
+    var ex = /^[ -~]*$/;
+    return ex.test(value) ? true : false;
+  }, "영어(특수문자포함)만 입력 가능합니다.");
+
+  jQuery.validator.addMethod("onlyNumber", function (value, element) {
+    var ex = /^[0-9]+$/;
+    return ex.test(value) ? true : false;
+  }, "숫자만 입력 가능합니다.");
+
+});
+
+jQuery.validator.addMethod("only2check", function (value, element) {
+    return this.optional(element) || $("input[name=" + $(element).prop("name") + "]:checked").length === 2;
+}, "Check ony 2 item");
+
+jQuery.validator.addMethod("only3check", function (value, element) {
+    return this.optional(element) || $("input[name=" + $(element).prop("name") + "]:checked").length === 3;
+}, "Check ony 3 item");
+
+jQuery.validator.addMethod("only4check", function (value, element) {
+    return this.optional(element) || $("input[name=" + $(element).prop("name") + "]:checked").length === 4;
+}, "Check ony 4 item");
+
+jQuery.validator.addMethod("only5check", function (value, element) {
+    return this.optional(element) || $("input[name=" + $(element).prop("name") + "]:checked").length === 5;
+}, "Check ony 5 item");
+
+

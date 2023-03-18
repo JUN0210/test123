@@ -1,0 +1,393 @@
+// vue
+var vm = new Vue({
+    el: "#app",
+    data: {
+        now: "",
+        tid: "",
+        
+        healthCheckDay: "",
+        galleryHotCount: 0,
+        dataRefreshInterval: 3 * 60 * 1000,
+        isShowRSVP: "N",
+        rsvpValueColumn: "",
+        rsvpTimeColumn: "",
+        visitorTable: {},
+        config: {},
+        photoUrl: "",
+        timeTable: [],
+        location: "",
+        opentime: "",
+        Grouptexts: {
+            "TEST": "테스트입니다",
+            "TS_참가자": "2023 춘계 트레이드쇼에 초청되셨습니다.",
+            "TS_세미나": "트레이드쇼 무역실무 및 미국 상표출원 강의에 초청되셨습니다.",
+            "TS_밋업": "트레이드쇼 밋업 데이에 초청되셨습니다.",
+            "TS_국내바이어": "2023 춘계 트레이드쇼에 초청되셨습니다.",
+            "TS_해외바이어": "You are invited to the 2023 FW SFW Trade Show.",
+        },
+    },
+    created: function () {
+        this.config = _config;
+    },
+    computed: {
+        visitorRow: function () {
+            if (this.visitorTable && this.visitorTable.length > 0) {
+                return this.visitorTable[0];
+            } else {
+                return {};
+            }
+        },
+        isHealthCheckMode: function () {
+            return this.config.isHealthCheckMode;
+        },
+        isHealthCheckComplete: function () {
+            if (!this.config.isHealthCheckMode) // 문진표 체크 안하면 skip
+            {
+                return true;
+            }
+
+            if (this.visitorRow && this.visitorRow[this.config.answerTimeColumn] && this.visitorRow[this.config.answerTimeColumn].trim()) {
+                return true;
+            }
+            else
+                return false;
+        },
+        isGoodHealth: function () {
+            if (!this.config.isHealthCheckMode) // 문진표 체크 안하면 skip
+            {
+                return true;
+            }
+            var check = true;
+            for (i = 0; i < this.config.answerValueColumns.length; i++) {
+                if (this.config.answerValueColumns.length > 0 && (!this.visitorRow[this.config.answerValueColumns[i]] || this.visitorRow[this.config.answerValueColumns[i]].trim().toUpperCase() != "N")) {
+                    check = false;
+                    break;
+                }
+            }
+            return check;
+        },
+        isHealthCheckTime: function () {
+            //console.log(this.config.answerTimeFrom, this.config.answerTimeTo);
+            return new Date().format("HH:mm") >= this.config.answerTimeFrom && new Date().format("HH:mm") <= this.config.answerTimeTo;
+        },
+        isKorean: function () {
+            if (this.visitorRow)
+                return (this.visitorRow.Language || 'KOR') == 'KOR';
+            else
+                return true;
+        },
+        isEnglish: function () {
+            if (this.visitorRow)
+                return (this.visitorRow.Language || 'ENG') == 'ENG';
+            else
+                return true;
+        },
+    },
+    methods: {
+        formatNumber: function (val) {
+            if (isNaN(val))
+                return "0";
+            else
+                return val.toLocaleString();
+        },
+        formatYmd: function (isoDate) {
+            return new Date(isoDate).format("yyyy-MM-dd");
+        },
+        formatHms: function (isoDate) {
+            return new Date(isoDate).format("HH:mm:ss");
+        },
+        random: function () {
+            return Math.random();
+        },
+        getPhotoUrl: function () {
+            if (this.visitorRow)
+                return 'https://registrations.kr/Reg/Photo?RegId=' + this.visitorRow.RegId + '&CheckCode=' + this.visitorRow.CheckCode;
+            else
+                return "";
+        }
+    },
+    watch: {
+        visitorTable: function () {
+            this.photoUrl = this.getPhotoUrl();
+        },
+        visitorRow: {
+            deep: true,
+            handler: function (val) {
+                if (val && val["SubEventCode"]) {
+                    const timetable = _timeTable.find(function (o) { return o.Name == val["SubEventCode"]; })
+                    if (timetable == null) {
+                        this.location = "";
+                        this.opentime = "";
+                    } else {
+                        this.location = timetable["Location"];
+                        this.opentime = timetable["OpenTime"];
+                    }
+                }
+            }
+        },
+    },
+
+    });
+
+
+$(function () {
+
+    //2020-06-30까지는 RSVP 페이지로 강제이동
+    //if ( new Date().format( "yyyy-MM-dd HH:mm:ss" ) < "2020-06-30 00:00:00" ) {
+    //    window.location.href = "RSVP.html" + window.location.search;
+    //    return;
+    //}
+
+    vm.tid = getParam("tid");
+    vm.timeTable = _timeTable;
+    // imagemap
+    $('map').imageMapResize();
+
+    // check redirect
+    if (getParam("page")) {
+        window.location.href = getParam("page") + ".html?tid=" + vm.tid + "&v=" + Math.random();
+        return;
+    }
+
+
+
+    // search data
+    searchVisitor();
+    window.setInterval(searchVisitor, vm.dataRefreshInterval);
+
+    // clock
+    window.setInterval(function () {
+        vm.now = new Date().format("yyyy-MM-dd HH:mm:ss");
+    }, 1000);
+});
+
+
+function searchVisitor() {
+    // VisitorRow
+    $.ajax({
+        type: "get",
+        url: "/api/reg/GetVisitorByMobileCode?MobileCode=" + vm.tid,
+        //data: $("#get-sessionapply-form").serialize(),
+        dataType: "json",
+        error: function (e) {
+            console.log("error");
+            //alert(e.responseText);
+        },
+        success: function (data) {
+            if (data.ReturnCode === 0) {
+                vm.visitorTable = data.ReturnTable;
+                onVisitorSearch(vm.visitorRow);
+
+                if (vm.isHealthCheckTime) {
+                    if (!vm.isHealthCheckComplete || !vm.isGoodHealth) {
+                        onInvalidHealthCheck(vm.visitorRow);
+                    }
+                    return;
+                }
+
+            } else {
+                alert(data.ReturnMessage);
+            }
+        },
+        complete: function () {
+            window.setTimeout(function () {
+                $(".loading-box").hide();
+            }, 500);
+        }
+    });
+}
+
+
+// ServerTime
+function getServerTime() {
+    $.ajax({
+        type: "get",
+        url: "/api/reg/Now",
+        //data: $("#get-sessionapply-form").serialize(),
+        dataType: "json",
+        error: function (e) {
+            console.log("error");
+        },
+        success: function (data) {
+            if (data.ReturnCode === 0) {
+                vm.now = data.ReturnValue;
+            } else {
+                //console.log(data.ReturnMessage);
+            }
+        }
+    });
+}
+
+
+/**
+* 사진 업로드
+*/
+function uploadPhoto() {
+    var form = document.forms[0];
+    var formData = new FormData(form);
+    var fileInput = $("#photo");
+
+    $("#photoHint").text("uploading....").show();
+
+    $.ajax({
+        url: "/api/Reg/UploadPhoto",
+        processData: false,
+        contentType: false,
+        data: formData,
+        type: 'POST',
+        dataType: 'json',
+        success: function (data) {
+            //console.log(data)
+            fileInput.val(null);
+            if (data.ResultCode == "OK") {
+                vm.photoUrl = vm.getPhotoUrl() + "&v=" + Math.random();
+                setTimeout(function () { alert("사진이 저장되었습니다.");}, 500);
+                $("#uploadedPhotoUrl").val(data.ResultValue).valid();
+            }
+            else {
+                alert(data.ResultMessage);
+            }
+        },
+        error: function (data) {
+            console.log(data);
+            alert('fail to upload');
+        },
+        complete: function () {
+            $("#photoHint").hide();
+        }
+    });
+}
+
+function rotatePhoto(angle) {
+    console.log(window.event)
+    var target = window.event.target;
+    var $target = null;
+    if (target)
+        $target = $(target);
+
+    if ($target) {
+        $target.addClass("is-loading");
+    }
+
+    $.ajax({
+        url: "/Reg/RotatePhoto?RegId=" + vm.visitorRow.RegId + "&Angle=" + angle,
+        type: 'GET',
+        dataType: 'json',
+        success: function (data) {
+            console.log("Rotate result : ", data);
+            if (data.ReturnCode == "0") {
+                vm.photoUrl = vm.getPhotoUrl() + "&v=" + Math.random();
+                setTimeout(function () { alert("사진이 저장되었습니다.");}, 500);
+            }
+            else {
+                alert(data.ReturnMessage);
+            }
+        },
+        error: function (data) {
+            console.log(data);
+            alert('fail to upload');
+        },
+        complete: function () {
+            if ($target) {
+                $target.removeClass("is-loading");
+            }
+        }
+    });
+}
+
+function submitPhoto(el) {
+    $target = $(el);
+    if ($("#photoForm").valid() === false) {
+        alert(vm.config.validationMessage);
+        return;
+    }
+
+    $target.addClass("is-loading");
+    window.setTimeout(function () {
+        $.ajax({
+            type: "post",
+            url: "/Reg/UpdateAction",
+            data: $("#photoForm").serialize(),
+            dataType: "json",
+            beforeSend: function () {
+            },
+            error: function (e) {
+                alert(e.responseText);
+            },
+            success: function (data) {
+                if (data.ReturnCode === 0) {
+                    vm.isComplete = true;
+                    if (vm.isGoodHealth) {
+                        alert('사진이 업로드되었습니다.');
+                        window.location.href = "Index.html" + window.location.search;
+                    }
+                } else {
+                    alert(data.ReturnMessage);
+                }
+            },
+            complete: function () {
+                $target.removeClass("is-loading");
+            }
+        });
+    }, 500);
+}
+
+function submitRsvp(el) {
+    $target = $(el);
+    if ($("#rsvpForm").valid() === false) {
+        alert(vm.config.validationMessage);
+        return;
+    }
+
+    // 설문응답시각
+    vm.visitorRow[vm.answerTimeColumn] = vm.now;
+
+    $target.addClass("is-loading");
+    window.setTimeout(function () {
+        $.ajax({
+            type: "post",
+            url: "/Reg/UpdateAction",
+            data: $("#rsvpForm").serialize(),
+            dataType: "json",
+            beforeSend: function () {
+            },
+            error: function (e) {
+                alert(e.responseText);
+            },
+            success: function (data) {
+                if (data.ReturnCode === 0) {
+                    vm.isComplete = true;
+                    if (vm.isGoodHealth) {
+                        alert('사진이 업로드 완료되었습니다.');
+                        window.location.href = "Index.html" + window.location.search;
+                    }
+                } else {
+                    alert(data.ReturnMessage);
+                }
+            },
+            complete: function () {
+                $target.removeClass("is-loading");
+            }
+        });
+    }, 500);
+}
+
+
+
+
+// 모든 리소스가 로딩되면 처리
+if (document.addEventListener) {
+    //    document.addEventListener('DOMContentLoaded', function () {
+    //        window.setTimeout(function () {
+    //            $(".loading-box").hide();
+    //        }, 1000);
+    //    });
+    //} else {
+    //    $(function () {
+    //        window.setTimeout(function () {
+    //            $(".loading-box").hide();
+    //        }, 1000);
+    //    });
+}
+
+

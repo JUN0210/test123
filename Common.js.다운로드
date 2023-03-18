@@ -1,0 +1,9 @@
+﻿$(function () {
+    // imagemap
+    $('map').imageMapResize();
+});
+
+
+function goHome() {
+    window.location.href = "Index.html?tid=" + getParam("tid") + "&v=" + Math.random();
+}

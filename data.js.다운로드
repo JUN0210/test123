@@ -1,0 +1,131 @@
+﻿var _timeTable = [
+    {
+        Name: '1',
+        Location: '아트홀 2관',
+        OpenTime: '03.15 08시 00분'
+    }, {
+        Name: 'UL:KIN',
+        Location: '아트홀 1관',
+        OpenTime: '03.15 13시 00분'
+    }, {
+        Name: 'LIE',
+        Location: '아트홀 2관',
+        OpenTime: '03.15 14시 30분'
+    }, {
+        Name: "CHARM'S",
+        Location: '아트홀 1관',
+        OpenTime: '03.15 16시 00분'
+    }, {
+        Name: 'BEYOND CLOSET',
+        Location: '아트홀 2관',
+        OpenTime: '03.15 17시 30분'
+    }, {
+        Name: 'MMAM',
+        Location: '아트홀 1관',
+        OpenTime: '03.15 19시 00분'
+    }, {
+        Name: 'CARUSO',
+        Location: '아트홀 1관',
+        OpenTime: '03.16 11시 30분'
+    }, {
+        Name: 'ACCEPTANCE LETTER STUDIO',
+        Location: '아트홀 2관',
+        OpenTime: '03.16 13시 00분'
+    }, {
+        Name: 'MISS GEE COLLECTION',
+        Location: '아트홀 1관',
+        OpenTime: '03.16 14시 30분'
+    }, {
+        Name: 'BLR BLUER',
+        Location: '아트홀 2관',
+        OpenTime: '03.16 16시 00분'
+    }, {
+        Name: 'HANACHA STUDIO',
+        Location: '아트홀 1관',
+        OpenTime: '03.16 17시 30분'
+    }, {
+        Name: 'TIBAEG',
+        Location: '아트홀 2관',
+        OpenTime: '03.16 19시 00분'
+    }, {
+        Name: 'SEOKWOON YOON',
+        Location: '아트홀 1관',
+        OpenTime: '03.16 20시 00분'
+    }, {
+        Name: 'IRYUK',
+        Location: '아트홀 1관',
+        OpenTime: '03.17 11시 30분'
+    }, {
+        Name: 'M.ROF',
+        Location: '아트홀 2관',
+        OpenTime: '03.17 13시 00분'
+    }, {
+        Name: 'HOLY NUMBER 7',
+        Location: '아트홀 1관',
+        OpenTime: '03.17 14시 30분'
+    }, {
+        Name: 'AJOBYAJO',
+        Location: '아트홀 2관',
+        OpenTime: '03.17 16시 00분'
+    }, {
+        Name: 'PARTSPARTS',
+        Location: '아트홀 1관',
+        OpenTime: '03.17 17시 30분'
+    }, {
+        Name: 'GREEDILOUS',
+        Location: '아트홀 2관',
+        OpenTime: '03.17 19시 00분'
+    }, {
+        Name: 'METROCITY',
+        Location: 'CORP.BRAND',
+        OpenTime: '03.17 20시 00분'
+    }, {
+        Name: 'DOUCAN',
+        Location: '아트홀 1관',
+        OpenTime: '03.18 11시 30분'
+    }, {
+        Name: 'ANONYMOUTH',
+        Location: '아트홀 2관',
+        OpenTime: '03.18 13시 00분'
+    }, {
+        Name: 'NOT ENOF WORDS DEARLIFE',
+        Location: '아트홀 1관',
+        OpenTime: '03.18 14시 30분'
+    }, {
+        Name: '#WHYSOCEREALZ!',
+        Location: '아트홀 2관',
+        OpenTime: '03.18 16시 00분'
+    }, {
+        Name: 'SLING STONE',
+        Location: '아트홀 1관',
+        OpenTime: '03.18 17시 30분'
+    }, {
+        Name: 'JULYCOLUMN',
+        Location: '아트홀 2관',
+        OpenTime: '03.18 19시 00분'
+    }, {
+        Name: 'VEGAN TIGER',
+        Location: '아트홀 1관',
+        OpenTime: '03.18 20시 00분'
+    }, {
+        Name: 'ORDINARY PEOPLE',
+        Location: '아트홀 1관',
+        OpenTime: '03.19 11시 30분'
+    }, {
+        Name: 'MAISON NICA',
+        Location: '아트홀 2관',
+        OpenTime: '03.19 13시 00분'
+    }, {
+        Name: 'KWAK HYUN JOO COLLECTION',
+        Location: '아트홀 1관',
+        OpenTime: '03.19 14시 30분'
+    }, {
+        Name: 'LIE SANG BONG',
+        Location: '아트홀 2관',
+        OpenTime: '03.19 16시 00분'
+    }, {
+        Name: 'BIG PARK',
+        Location: '아트홀 1관',
+        OpenTime: '03.19 17시 30분'
+    },
+];
